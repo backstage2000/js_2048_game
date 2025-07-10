@@ -1,5 +1,21 @@
 'use strict';
 
+const element = document.querySelector('.start');
+const fiendElement = document.querySelectorAll('.field-cell');
+
+const emptyCells = [];
+
+fiendElement.forEach((cell) => {
+  if (cell.textContent.trim() === '') {
+    emptyCells.push(cell);
+  }
+});
+
+// const value = Math.random() < 0.9 ? 2 : 4;
+// const randomIndex = Math.floor(Math.random() * emptyCells.length);
+// const randomCell = emptyCells[randomIndex];
+// randomCell.textContent = value;
+
 /**
  * This class represents the game.
  * Now it has a basic structure, that is needed for testing.
@@ -55,12 +71,31 @@ class Game {
   /**
    * Starts the game.
    */
-  start() {}
+  start() {
+    for (let i = 0; i < 2; i++) {
+      const value = Math.random() < 0.9 ? 2 : 4;
+      const randomIndex = Math.floor(Math.random() * emptyCells.length);
+      const randomCell = emptyCells[randomIndex];
+      randomCell.textContent = value;
+      randomCell.classList.add(`field-cell--${value}`);
+    }
+
+    element.className = 'button restart';
+    element.textContent = 'Restart';
+  }
 
   /**
    * Resets the game.
    */
-  restart() {}
+  restart() {
+    for (let i = 0; i < 2; i++) {
+      const value = Math.random() < 0.9 ? 2 : 4;
+      const randomIndex = Math.floor(Math.random() * emptyCells.length);
+      const randomCell = emptyCells[randomIndex];
+      randomCell.textContent = value;
+      randomCell.classList.add(`field-cell--64`);
+    }
+  }
 
   // Add your own methods here
 }
