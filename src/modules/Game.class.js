@@ -1,26 +1,12 @@
 'use strict';
 
-const element = document.querySelector('.start');
-const fiendElement = document.querySelectorAll('.field-cell');
-
-const emptyCells = [];
-
-fiendElement.forEach((cell) => {
-  if (cell.textContent.trim() === '') {
-    emptyCells.push(cell);
-  }
-});
-
-// const value = Math.random() < 0.9 ? 2 : 4;
-// const randomIndex = Math.floor(Math.random() * emptyCells.length);
-// const randomCell = emptyCells[randomIndex];
-// randomCell.textContent = value;
-
 /**
  * This class represents the game.
  * Now it has a basic structure, that is needed for testing.
  * Feel free to add more props and methods if needed.
+ *
  */
+
 class Game {
   /**
    * Creates a new game instance.
@@ -33,12 +19,49 @@ class Game {
    *  [0, 0, 0, 0],
    *  [0, 0, 0, 0]]
    *
+   *
+   *
    * If passed, the board will be initialized with the provided
    * initial state.
    */
   constructor(initialState) {
     // eslint-disable-next-line no-console
-    console.log(initialState);
+    this.board = initialState;
+    this.status = 'idle';
+  }
+
+  addRandomCells(count = 2) {
+    const emptyCells = [];
+
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 4; col++) {
+        if (this.board[row][col] === 0) {
+          emptyCells.push([row, col]);
+        }
+      }
+    }
+
+    for (let i = 0; i < count && emptyCells.length > 0; i++) {
+      const idx = Math.floor(Math.random() * emptyCells.length);
+      const [row, col] = emptyCells.splice(idx, 1)[0];
+
+      this.board[row][col] = Math.random() < 0.9 ? 2 : 4;
+    }
+  }
+
+  renderBoard(board) {
+    const cells = document.querySelectorAll('.field-cell');
+
+    for (let i = 0; i < 16; i++) {
+      const row = Math.floor(i / 4);
+      const col = i % 4;
+
+      cells[i].textContent = board[row][col] === 0 ? '' : board[row][col];
+
+      if (board[row][col] !== 0) {
+        cells[i].classList.add(`field-cell--${board[row][col]}`);
+      }
+    }
   }
 
   moveLeft() {}
@@ -54,7 +77,9 @@ class Game {
   /**
    * @returns {number[][]}
    */
-  getState() {}
+  getState() {
+    return this.status;
+  }
 
   /**
    * Returns the current game status.
@@ -72,29 +97,41 @@ class Game {
    * Starts the game.
    */
   start() {
-    for (let i = 0; i < 2; i++) {
-      const value = Math.random() < 0.9 ? 2 : 4;
-      const randomIndex = Math.floor(Math.random() * emptyCells.length);
-      const randomCell = emptyCells[randomIndex];
-      randomCell.textContent = value;
-      randomCell.classList.add(`field-cell--${value}`);
-    }
+    this.status = 'playing';
 
-    element.className = 'button restart';
-    element.textContent = 'Restart';
+    this.board = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    this.addRandomCells(2);
   }
 
   /**
    * Resets the game.
    */
+
+  resetClass() {
+    const fieldElement = document.querySelectorAll('.field-cell');
+
+    fieldElement.forEach((el) => {
+      el.className = 'field-cell';
+    });
+  }
+
   restart() {
-    for (let i = 0; i < 2; i++) {
-      const value = Math.random() < 0.9 ? 2 : 4;
-      const randomIndex = Math.floor(Math.random() * emptyCells.length);
-      const randomCell = emptyCells[randomIndex];
-      randomCell.textContent = value;
-      randomCell.classList.add(`field-cell--64`);
-    }
+    this.resetClass();
+
+    this.board = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+
+    this.addRandomCells(2);
   }
 
   // Add your own methods here
