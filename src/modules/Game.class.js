@@ -28,6 +28,7 @@ class Game {
     // eslint-disable-next-line no-console
     this.board = initialState;
     this.status = 'idle';
+    this.score = 0;
   }
 
   addRandomCells(count = 2) {
@@ -64,15 +65,110 @@ class Game {
     }
   }
 
-  moveLeft() {}
-  moveRight() {}
-  moveUp() {}
-  moveDown() {}
+  slideAndMerge(row) {
+    let arr = row.filter((num) => num !== 0);
+
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i] === arr[i + 1]) {
+        this.score += arr[i] *= 2;
+        arr[i + 1] = 0;
+      }
+    }
+
+    arr = arr.filter((num) => num !== 0);
+
+    while (arr.length < 4) {
+      arr.push(0);
+    }
+
+    return arr;
+  }
+
+  applyMove(moveCallback) {
+    const oldBoard = this.board.flat();
+
+    moveCallback();
+
+    const newBoard = this.board.flat();
+
+    for (let i = 0; i < 16; i++) {
+      if (newBoard[i] !== oldBoard[i]) {
+        this.addRandomCells(1);
+        break;
+      }
+    }
+  }
+
+  moveLeft() {
+    this.applyMove(() => {
+      for (let i = 0; i < 4; i++) {
+        this.board[i] = this.slideAndMerge(this.board[i]);
+      }
+      this.resetClass();
+      this.getScore();
+    });
+  }
+
+  moveRight() {
+    this.applyMove(() => {
+      for (let i = 0; i < 4; i++) {
+        this.board[i] = this.slideAndMerge(
+          this.board[i].slice().reverse(),
+        ).reverse();
+      }
+      this.resetClass();
+      this.getScore();
+    });
+  }
+
+  moveUp() {
+    this.applyMove(() => {
+      for (let col = 0; col < 4; col++) {
+        let column = [];
+
+        for (let row = 0; row < 4; row++) {
+          column.push(this.board[row][col]);
+        }
+
+        column = this.slideAndMerge(column);
+
+        for (let row = 0; row < 4; row++) {
+          this.board[row][col] = column[row];
+        }
+      }
+      this.resetClass();
+      this.getScore();
+    });
+  }
+
+  moveDown() {
+    this.applyMove(() => {
+      for (let col = 0; col < 4; col++) {
+        let column = [];
+
+        for (let row = 0; row < 4; row++) {
+          column.push(this.board[row][col]);
+        }
+
+        column = this.slideAndMerge(column.reverse()).reverse();
+
+        for (let row = 0; row < 4; row++) {
+          this.board[row][col] = column[row];
+        }
+      }
+      this.resetClass();
+      this.getScore();
+    });
+  }
 
   /**
    * @returns {number}
    */
-  getScore() {}
+  getScore() {
+    const scoreElement = document.querySelector('.game-score');
+
+    scoreElement.textContent = this.score;
+  }
 
   /**
    * @returns {number[][]}
@@ -124,6 +220,8 @@ class Game {
   restart() {
     this.resetClass();
 
+    this.resetScore();
+
     this.board = [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
@@ -133,6 +231,17 @@ class Game {
 
     this.addRandomCells(2);
   }
+
+  resetScore() {
+    this.score = 0;
+    const scoreElement = document.querySelector('.game-score');
+    scoreElement.textContent = '0';
+  }
+
+  gameOver() {
+    
+  }
+
 
   // Add your own methods here
 }
