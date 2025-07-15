@@ -6,6 +6,12 @@
  * Feel free to add more props and methods if needed.
  *
  */
+const defaultBoard = [
+  [0, 0, 0, 0],
+  [0, 0, 0, 0],
+  [0, 0, 0, 0],
+  [0, 0, 0, 0],
+];
 
 class Game {
   /**
@@ -24,7 +30,7 @@ class Game {
    * If passed, the board will be initialized with the provided
    * initial state.
    */
-  constructor(initialState) {
+  constructor(initialState = defaultBoard) {
     // eslint-disable-next-line no-console
     this.board = initialState;
     this.status = 'idle';
@@ -106,6 +112,7 @@ class Game {
       }
       this.resetClass();
       this.getScore();
+      this.gameOver();
     });
   }
 
@@ -118,6 +125,7 @@ class Game {
       }
       this.resetClass();
       this.getScore();
+      this.gameOver();
     });
   }
 
@@ -138,6 +146,7 @@ class Game {
       }
       this.resetClass();
       this.getScore();
+      this.gameOver();
     });
   }
 
@@ -158,6 +167,7 @@ class Game {
       }
       this.resetClass();
       this.getScore();
+      this.gameOver();
     });
   }
 
@@ -168,13 +178,18 @@ class Game {
     const scoreElement = document.querySelector('.game-score');
 
     scoreElement.textContent = this.score;
+
+    if (this.hasWinningTile()) {
+      this.status = 'win';
+      this.toggleMessage('message-win', true);
+    }
   }
 
   /**
    * @returns {number[][]}
    */
   getState() {
-    return this.status;
+    return this.board;
   }
 
   /**
@@ -187,7 +202,9 @@ class Game {
    * `win` - the game is won;
    * `lose` - the game is lost
    */
-  getStatus() {}
+  getStatus() {
+    return this.status;
+  }
 
   /**
    * Starts the game.
@@ -219,8 +236,8 @@ class Game {
 
   restart() {
     this.resetClass();
-
     this.resetScore();
+    this.messageRestart();
 
     this.board = [
       [0, 0, 0, 0],
@@ -229,19 +246,67 @@ class Game {
       [0, 0, 0, 0],
     ];
 
+    this.status = 'playing';
     this.addRandomCells(2);
   }
 
   resetScore() {
     this.score = 0;
+
     const scoreElement = document.querySelector('.game-score');
+
     scoreElement.textContent = '0';
   }
 
-  gameOver() {
-    
+  messageRestart() {
+    this.toggleMessage('message-lose', false);
+    this.toggleMessage('message-win', false);
   }
 
+  gameOver() {
+    let hasMoves = false;
+
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 4; col++) {
+        const cell = this.board[row][col];
+
+        if (cell === 0) {
+          hasMoves = true;
+        }
+
+        if (col < 3 && cell === this.board[row][col + 1]) {
+          hasMoves = true;
+        }
+
+        if (row < 3 && cell === this.board[row + 1][col]) {
+          hasMoves = true;
+        }
+      }
+    }
+
+    if (!hasMoves) {
+      this.status = 'lose';
+      this.toggleMessage('message-lose', true);
+    }
+  }
+
+  toggleMessage(type, show) {
+    const element = document.querySelector(`.message.${type}`);
+
+    if (!element) {
+      return;
+    }
+
+    if (show) {
+      element.classList.remove('hidden');
+    } else {
+      element.classList.add('hidden');
+    }
+  }
+
+  hasWinningTile() {
+    return this.board.flat().includes(2048);
+  }
 
   // Add your own methods here
 }

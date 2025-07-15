@@ -3,7 +3,7 @@
 import Game from '../modules/Game.class';
 
 const initialState = [
-  [2, 2, 2, 0],
+  [0, 0, 0, 0],
   [0, 0, 0, 0],
   [0, 0, 0, 0],
   [0, 0, 0, 0],
@@ -12,11 +12,10 @@ const initialState = [
 const game = new Game(initialState);
 
 const btnStartElement = document.querySelector('.button.start');
-const messageElementStart = document.querySelector('.message-start');
-
+const messageElementStart = document.querySelector('.message.message-start');
 
 btnStartElement.addEventListener('click', () => {
-  const statusButton = game.getState();
+  const statusButton = game.getStatus();
 
   if (statusButton === 'idle') {
     game.start();
@@ -33,6 +32,8 @@ btnStartElement.addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
+  document.activeElement.blur();
+
   switch (e.key) {
     case 'ArrowUp':
       game.moveUp();
@@ -52,13 +53,3 @@ document.addEventListener('keydown', (e) => {
       break;
   }
 });
-
-// const statusButton = game.getState();
-// game.start();
-// game.renderBoard(game.board);
-// messageElementStart.classList.add('hidden');
-// btnStartElement.classList.remove('start');
-// btnStartElement.classList.add('restart');
-// btnStartElement.textContent = 'Restart';
-// game.moveLeft();
-// game.renderBoard(game.board);
