@@ -25,9 +25,6 @@ class Game {
    * initial state.
    */
   constructor(initialState = null) {
-    // eslint-disable-next-line no-console
-    // this.initialState = this.copyBoard(initialState);
-    // this.board = this.copyBoard(initialState);
     this.board = initialState;
     this.status = 'idle';
     this.score = 0;
@@ -233,15 +230,6 @@ class Game {
   /**
    * Resets the game.
    */
-
-  createEmptyBoard() {
-    return [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    ];
-  }
 
   reset() {
     this.score = 0;
