@@ -21,14 +21,18 @@ btnStartElement.addEventListener('click', () => {
     game.start();
     game.renderBoard(game.board);
     messageElementStart.classList.add('hidden');
+
+    btnStartElement.classList.remove('start');
+    btnStartElement.classList.add('restart');
+    btnStartElement.textContent = 'Restart';
   } else {
     game.restart();
     game.renderBoard(game.board);
-  }
 
-  btnStartElement.classList.remove('start');
-  btnStartElement.classList.add('restart');
-  btnStartElement.textContent = 'Restart';
+    btnStartElement.classList.remove('restart');
+    btnStartElement.classList.add('start');
+    btnStartElement.textContent = 'Start';
+  }
 });
 
 document.addEventListener('keydown', (e) => {

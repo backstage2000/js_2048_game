@@ -6,12 +6,6 @@
  * Feel free to add more props and methods if needed.
  *
  */
-const defaultBoard = [
-  [0, 0, 0, 0],
-  [0, 0, 0, 0],
-  [0, 0, 0, 0],
-  [0, 0, 0, 0],
-];
 
 class Game {
   /**
@@ -30,8 +24,10 @@ class Game {
    * If passed, the board will be initialized with the provided
    * initial state.
    */
-  constructor(initialState = defaultBoard) {
+  constructor(initialState = null) {
     // eslint-disable-next-line no-console
+    // this.initialState = this.copyBoard(initialState);
+    // this.board = this.copyBoard(initialState);
     this.board = initialState;
     this.status = 'idle';
     this.score = 0;
@@ -91,84 +87,108 @@ class Game {
   }
 
   applyMove(moveCallback) {
-    const oldBoard = this.board.flat();
+    const oldBoard = this.board.map((row) => [...row]);
 
     moveCallback();
 
-    const newBoard = this.board.flat();
+    const newBoard = this.board;
 
-    for (let i = 0; i < 16; i++) {
-      if (newBoard[i] !== oldBoard[i]) {
-        this.addRandomCells(1);
+    let changed = false;
+
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 4; col++) {
+        if (oldBoard[row][col] !== newBoard[row][col]) {
+          changed = true;
+          break;
+        }
+      }
+
+      if (changed) {
         break;
       }
+    }
+
+    if (changed) {
+      this.addRandomCells(1);
     }
   }
 
   moveLeft() {
-    this.applyMove(() => {
-      for (let i = 0; i < 4; i++) {
-        this.board[i] = this.slideAndMerge(this.board[i]);
-      }
-      this.resetClass();
-      this.getScore();
-      this.gameOver();
-    });
+    if (this.status === 'playing') {
+      this.applyMove(() => {
+        for (let i = 0; i < 4; i++) {
+          this.board[i] = this.slideAndMerge(this.board[i]);
+        }
+        this.resetClass();
+        this.getScore();
+        this.hasWinningTile();
+        this.gameOver();
+      });
+    }
   }
 
   moveRight() {
-    this.applyMove(() => {
-      for (let i = 0; i < 4; i++) {
-        this.board[i] = this.slideAndMerge(
-          this.board[i].slice().reverse(),
-        ).reverse();
-      }
-      this.resetClass();
-      this.getScore();
-      this.gameOver();
-    });
+    if (this.status === 'playing') {
+      this.applyMove(() => {
+        for (let i = 0; i < 4; i++) {
+          this.board[i] = this.slideAndMerge(
+            this.board[i].slice().reverse(),
+          ).reverse();
+        }
+        this.resetClass();
+        this.getScore();
+        this.hasWinningTile();
+        this.gameOver();
+      });
+    }
   }
 
   moveUp() {
-    this.applyMove(() => {
-      for (let col = 0; col < 4; col++) {
-        let column = [];
+    if (this.status === 'playing') {
+      this.applyMove(() => {
+        for (let col = 0; col < 4; col++) {
+          let column = [];
 
-        for (let row = 0; row < 4; row++) {
-          column.push(this.board[row][col]);
+          for (let row = 0; row < 4; row++) {
+            column.push(this.board[row][col]);
+          }
+
+          column = this.slideAndMerge(column);
+
+          for (let row = 0; row < 4; row++) {
+            this.board[row][col] = column[row];
+          }
         }
-
-        column = this.slideAndMerge(column);
-
-        for (let row = 0; row < 4; row++) {
-          this.board[row][col] = column[row];
-        }
-      }
-      this.resetClass();
-      this.getScore();
-      this.gameOver();
-    });
+        this.resetClass();
+        this.getScore();
+        this.hasWinningTile();
+        this.gameOver();
+      });
+    }
   }
 
   moveDown() {
-    this.applyMove(() => {
-      for (let col = 0; col < 4; col++) {
-        let column = [];
+    if (this.status === 'playing') {
+      this.applyMove(() => {
+        for (let col = 0; col < 4; col++) {
+          let column = [];
 
-        for (let row = 0; row < 4; row++) {
-          column.push(this.board[row][col]);
+          for (let row = 0; row < 4; row++) {
+            column.push(this.board[row][col]);
+          }
+
+          column = this.slideAndMerge(column.reverse()).reverse();
+
+          for (let row = 0; row < 4; row++) {
+            this.board[row][col] = column[row];
+          }
         }
-
-        column = this.slideAndMerge(column.reverse()).reverse();
-
-        for (let row = 0; row < 4; row++) {
-          this.board[row][col] = column[row];
-        }
-      }
-      this.resetClass();
-      this.getScore();
-      this.gameOver();
-    });
+        this.resetClass();
+        this.getScore();
+        this.hasWinningTile();
+        this.gameOver();
+      });
+    }
   }
 
   /**
@@ -178,11 +198,6 @@ class Game {
     const scoreElement = document.querySelector('.game-score');
 
     scoreElement.textContent = this.score;
-
-    if (this.hasWinningTile()) {
-      this.status = 'win';
-      this.toggleMessage('message-win', true);
-    }
   }
 
   /**
@@ -212,19 +227,36 @@ class Game {
   start() {
     this.status = 'playing';
 
-    this.board = [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    ];
-
     this.addRandomCells(2);
   }
 
   /**
    * Resets the game.
    */
+
+  createEmptyBoard() {
+    return [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+  }
+
+  reset() {
+    this.score = 0;
+    this.status = 'idle';
+
+    this.board = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
+    this.resetScore();
+    this.resetClass();
+    this.messageRestart();
+  }
 
   resetClass() {
     const fieldElement = document.querySelectorAll('.field-cell');
@@ -235,27 +267,21 @@ class Game {
   }
 
   restart() {
-    this.resetClass();
-    this.resetScore();
-    this.messageRestart();
-
-    this.board = [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    ];
-
-    this.status = 'playing';
-    this.addRandomCells(2);
+    this.reset();
   }
 
   resetScore() {
-    this.score = 0;
-
     const scoreElement = document.querySelector('.game-score');
 
     scoreElement.textContent = '0';
+
+    const fieldElement = document.querySelectorAll('.field-cell');
+
+    fieldElement.forEach((el) => {
+      el.textContent = '';
+    });
+
+    this.toggleMessage('message-start', true);
   }
 
   messageRestart() {
@@ -305,7 +331,12 @@ class Game {
   }
 
   hasWinningTile() {
-    return this.board.flat().includes(2048);
+    const won = this.board.flat().includes(2048);
+
+    if (won) {
+      this.status = 'win';
+      this.toggleMessage('message-win', true);
+    }
   }
 
   // Add your own methods here
